@@ -138,15 +138,17 @@ func (i *Iterator[S]) ScanStack(fn func(keyIndex, keyEnd, arrayIndex int)) {
 
 // Pointer returns the JSON pointer in RFC-6901 format.
 func (i *Iterator[S]) Pointer() (s S) {
-	i.ViewPointer(func(p []byte) {
-		switch any(s).(type) {
-		case string:
-			s = S(uf.B2S(p))
-		case []byte:
-			s = S(p)
-		}
-	})
-	return
+	switch any(s).(type) {
+	case string:
+		return S(uf.B2S(i.ViewPointer()))
+	case []byte:
+		return S(i.ViewPointer())
+	}
+
+	panic(fmt.Sprintf(
+		"BUG: Iterator[S] is of unknown generic type. Consider to " +
+			"update the switch-case according to the new API",
+	))
 }
 
 // ViewPointer calls fn and provides the buffer holding the
@@ -155,7 +157,7 @@ func (i *Iterator[S]) Pointer() (s S) {
 //
 // WARNING: do not use or alias p after fn returns,
 // only reading and copying p are considered safe!
-func (i *Iterator[S]) ViewPointer(fn func(p []byte)) {
+func (i *Iterator[S]) ViewPointer() []byte {
 	i.ScanStack(func(keyIndex, keyEnd, arrayIndex int) {
 		if keyIndex != -1 {
 			// Object key
@@ -171,8 +173,9 @@ func (i *Iterator[S]) ViewPointer(fn func(p []byte)) {
 		i.pointer = append(i.pointer, '/')
 		i.pointer = keyescape.Append(i.pointer, i.src[i.keyIndex+1:i.keyIndexEnd-1])
 	}
-	fn(i.pointer)
+	pointer := i.pointer
 	i.pointer = i.pointer[:0]
+	return pointer
 }
 
 func (i *Iterator[S]) getError(c ErrorCode) Error[S] {
