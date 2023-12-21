@@ -263,6 +263,7 @@ const (
 type ValueType int8
 
 // JSON value types
+//go:generate stringer -type=ValueType
 const (
 	_ ValueType = iota
 	ValueTypeObject
@@ -273,26 +274,6 @@ const (
 	ValueTypeString
 	ValueTypeNumber
 )
-
-func (t ValueType) String() string {
-	switch t {
-	case ValueTypeObject:
-		return "object"
-	case ValueTypeArray:
-		return "array"
-	case ValueTypeNull:
-		return "null"
-	case ValueTypeFalse:
-		return "false"
-	case ValueTypeTrue:
-		return "true"
-	case ValueTypeString:
-		return "string"
-	case ValueTypeNumber:
-		return "number"
-	}
-	return ""
-}
 
 func errorMessage(c ErrorCode, index int, atIndex rune) string {
 	errMsg := ""
