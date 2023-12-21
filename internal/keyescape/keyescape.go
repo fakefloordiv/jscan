@@ -2,8 +2,8 @@ package keyescape
 
 import (
 	"bytes"
+	"github.com/indigo-web/utils/uf"
 	"strings"
-	"unsafe"
 )
 
 // Append appends key to dest replacing all occurrences of
@@ -167,11 +167,7 @@ func variantCheckAndReplaceUnrolled[S ~[]byte | ~string](
 func variantStdReplacer[S ~[]byte | ~string](r *strings.Replacer, dest []byte, key S) []byte {
 	switch key := any(key).(type) {
 	case []byte:
-		return append(dest, r.Replace(unsafeB2S(key))...)
+		return append(dest, r.Replace(uf.B2S(key))...)
 	}
 	return append(dest, r.Replace(string(key))...)
-}
-
-func unsafeB2S(b []byte) string {
-	return unsafe.String(unsafe.SliceData(b), len(b))
 }
