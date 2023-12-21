@@ -2,6 +2,7 @@ package jscan
 
 import (
 	"fmt"
+	"github.com/indigo-web/utils/uf"
 	"strconv"
 	"sync"
 	"unicode/utf8"
@@ -140,11 +141,9 @@ func (i *Iterator[S]) Pointer() (s S) {
 	i.ViewPointer(func(p []byte) {
 		switch any(s).(type) {
 		case string:
-			s = S(p)
+			s = S(uf.B2S(p))
 		case []byte:
-			b := make([]byte, len(p))
-			copy(b, p)
-			s = S(b)
+			s = S(p)
 		}
 	})
 	return
